@@ -34,7 +34,10 @@ pub fn run_bf_ast(program: &Vec<BfAstNode>, memory:&mut Vec<u8>,mix: &mut usize,
                             memory[*mix] = byte[0]
                         },
                         '#' => {
-                            println!("{:?}",&memory);
+                            let plsprint = &memory.into_iter().map(|v| {let mut v: Vec<String> = (*v as i8).to_string().chars().map(|c| c.to_string()).collect::<Vec<String>>(); 
+                                v.reverse(); v.push(" ".into()); v.truncate(2); v.reverse(); v.concat()}
+                                ).collect::<Vec<String>>();
+                            println!("{:?}", plsprint);
                             std::thread::sleep(Duration::new(0,1_000_000_000/60));
                         }
                         _ => (),

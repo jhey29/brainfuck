@@ -1,5 +1,9 @@
 {
     "rust-analyzer.linkedProjects": [
         "./Cargo.toml",
-    ]
+    ],
+    "[plaintext]": {   
+        "editor.wordBasedSuggestions": true,
+        "editor.wordSeparators": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ",
+    }
 }
