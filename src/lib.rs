@@ -11,11 +11,19 @@ pub fn run_bf_ast(program: &Vec<BfAstNode>, memory:&mut Vec<u8>,mix: &mut usize,
     for bfn in program {
         match bfn {
             BfAstNode::CodeBlob(vec_ch) => {
-                for c in vec_ch {
-                    match c {
+                let mut chars = vec_ch.iter();
+                loop {
+                match chars.next() {
+                    Some(c) => match c {
                         '+' => memory[*mix] = memory[*mix].wrapping_add(1),
                         '-' => memory[*mix] = memory[*mix].wrapping_sub(1),
-                        '<' => {*mix = (*mix).checked_sub(1).expect("< should not underflow the memory index");},
+                        '<' => *mix = match (*mix).checked_sub(1) {
+                            Some(v) => v, 
+                            None => {
+                                println!("{:?}",&memory);
+                                panic!("< should not underflow the memory index in code block {:?}",vec_ch)}
+                            ,
+                        },
                         '>' => {*mix += 1; if *mix == memory.len() {
                             memory.push(0)
                         }},
@@ -34,12 +42,15 @@ pub fn run_bf_ast(program: &Vec<BfAstNode>, memory:&mut Vec<u8>,mix: &mut usize,
                             memory[*mix] = byte[0]
                         },
                         '#' => {
+                            println!("message: {}",chars.as_slice().iter().take_while(|ch| !".,+-<>".contains(**ch) ).map(|c|c.to_string()).reduce(|a,b| a+ &b ).unwrap_or("".into()));
                             println!("{:?}",&memory);
                             std::thread::sleep(Duration::new(0,1_000_000_000/60));
-                        }
+                        },
                         _ => (),
-                    }
+                    },
+                    None => break,
                 }
+            }
             }
             BfAstNode::Conditional(vec_ast) => {
                 while memory[*mix] != 0 {
@@ -67,7 +78,8 @@ fn new_code_blob(program: &mut Peekable<Chars>) -> Vec<char> {
         match program.peek() {
             Some(c) => match c {
                 '[' | ']' => break,
-                a if "+-.,<>#".contains(*a) => opvec_ch.push(program.next().unwrap()),
+                '#' => opvec_ch.append(&mut program.take_while(|ch| !ch.is_ascii_whitespace()).collect::<Vec<_>>() ),
+                a if "+-.,<>".contains(*a) => opvec_ch.push(program.next().unwrap()),
                 _ => {program.next();},
             }
             None => break,
