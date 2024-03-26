@@ -14,7 +14,7 @@ pub struct BrainfuckGenerator {
     
 }
 pub struct Pipe {
-    car: BrainfuckIterator,
+    car: BrainfuckGenerator,
     cdr: Box<Pipe>,
 }
 pub fn run_bf_ast(program: &Vec<BfAstNode>, memory:&mut Vec<u8>,mix: &mut usize,stdin:&mut impl Read ) {
