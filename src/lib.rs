@@ -7,6 +7,16 @@ pub enum BfAstNode {
     CodeBlob(Vec<char>),
     Conditional(Vec<BfAstNode>),
 }
+pub struct BrainfuckGenerator {
+    program: Vec<BfAstNode>,
+    memory: Vec<u8>,
+    mem_ix: usize,
+    
+}
+pub struct Pipe {
+    car: BrainfuckIterator,
+    cdr: Box<Pipe>,
+}
 pub fn run_bf_ast(program: &Vec<BfAstNode>, memory:&mut Vec<u8>,mix: &mut usize,stdin:&mut impl Read ) {
     for bfn in program {
         match bfn {
@@ -87,6 +97,9 @@ fn new_code_blob(program: &mut Peekable<Chars>) -> Vec<char> {
     }
     opvec_ch
 }
+
+
+
 #[cfg(test)]
 mod tests {
     use crate::*;
