@@ -8,18 +8,18 @@
 >> go to second cell of number
 until Number End 
 +[-<[->+++++ +++++<]>>+]- multiply number to the right by 10 and add on top 
-<<- MARK Marker 
-<[-]<[-] +++++[->+++++ +++<]> generate 40 
->>>+ remove Number End
-< go to Number 
-until on Marker +[-
->-< +[-<+]- <.>> +[->+] < print (
-[ until 0 
->-< +[-<+]- <.>> +[->+] < print ( 
--[->+>+<<] >> [-<+>]  create 2 copies one less to the right and on self
-]
+<. #err0
+|. op 0 
+- set Marker
+>, input 
++[-
+[ not on 0
+-[->+>+<<]>>[-<<+>>]<
+ > . <  op 0
+] on 0  
++ . - <  1 and go left
++]- until Marker
+|
+>+++++[-<+++++ +++>] generate 40 
++[, [-<+>>+<] < . >>[-<<->>] <+] #err get bit output and reset ad inf
 
->-< +[-<+]- <+.->> +[->+] < print )
-<
-+] 
-() are charcodes 40 and 41 

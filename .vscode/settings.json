@@ -3,7 +3,7 @@
         "./Cargo.toml",
     ],
     "[plaintext]": {   
-        "editor.wordBasedSuggestions": true,
+        "editor.wordBasedSuggestions": "matchingDocuments",
         "editor.wordSeparators": "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ ",
     }
 }
