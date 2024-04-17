@@ -4,7 +4,8 @@ use bf::{bf_to_ast, BrainfuckIterator};
 
 pub mod bf;
 
-pub fn map_brainpipe(program: &mut Peekable<Chars>, input_iterator: Box<dyn Iterator<Item = u8>>) -> Box<dyn Iterator<Item = u8>> {
+pub use crate as libbrainpipe;
+pub fn map_brainpipe<'a>(program: &mut Peekable<Chars>, input_iterator: Box<dyn Iterator<Item = u8> + 'a>) -> Box<dyn Iterator<Item = u8> + 'a> {
     let mut which_on = input_iterator;
     loop {
         let bf_ast = bf_to_ast(program); 

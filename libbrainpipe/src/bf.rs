@@ -5,13 +5,13 @@ pub enum BfAstNode {
     CodeBlob(SelectVec<char>),
     Conditional(SelectVec<BfAstNode>),
 }
-pub struct BrainfuckIterator {
+pub struct BrainfuckIterator<'a> {
     program: SelectVec<BfAstNode>,
     memory: SelectVec<u8>,
-    on: Box<dyn Iterator<Item = u8>>,
+    on: Box<dyn Iterator<Item = u8> + 'a>,
 }
-impl BrainfuckIterator {
-    pub fn new(program: SelectVec<BfAstNode>,on: Box<dyn Iterator<Item = u8>>) -> Self {
+impl<'a> BrainfuckIterator<'a> {
+    pub fn new(program: SelectVec<BfAstNode>,on: Box<dyn Iterator<Item = u8> + 'a>) -> Self {
         BrainfuckIterator {
             program,
             memory: SelectVec::new(vec![0,0,0,0]),
@@ -19,7 +19,7 @@ impl BrainfuckIterator {
         }
     }
 }
-impl Iterator for BrainfuckIterator {
+impl<'a> Iterator for BrainfuckIterator<'a> {
     type Item = u8;
     fn next(&mut self) -> Option<Self::Item> {
         match run_bf_ast(&mut self.program,&mut self.memory,&mut self.on) {

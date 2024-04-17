@@ -11,3 +11,12 @@ are then chained together. The first is connected to stdin and the last
 is connected to stdout. The last program is run until it requires input,
 at which point the program above it will run until it has provided this input,
 or has requested input itself. If any of these brainfuck programs ends, the entire thing will. 
+
+## Building the Webassembly target
+Doing this requires you to [have wasm-pack installed](https://rustwasm.github.io/wasm-pack/installer/). You can then run 
+```
+./ln-into-webapp.sh /path/to/web-project/pkg/
+cd wasm-crate
+wasm-pack build --target web
+``` 
+(on linux) to have the artifact written into your web project directly, and then interact with the WebAssembly according to the `--target web` [way of doing things.](https://developer.mozilla.org/en-US/docs/WebAssembly/Rust_to_wasm#compiling_our_code_to_webassembly)

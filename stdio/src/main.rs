@@ -1,6 +1,6 @@
 use std::io::{Read, StdinLock};
 use std::time::Duration;
-use brainfuck::map_brainpipe;
+use brainpipe::libbrainpipe::map_brainpipe;
 fn main() {
     let mut args = std::env::args();
     let path = args.nth(1).expect("a bf file path should be given as the first argument");

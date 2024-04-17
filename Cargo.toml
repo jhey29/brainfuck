@@ -1,8 +1,20 @@
-[package]
-name = "brainfuck"
-version = "0.1.0"
-edition = "2021"
-repository = "https://github.com/jhey29/brainfuck"
+ [package]
+ name = "brainpipe"
+ version = "0.1.0"
+ edition = "2021"
+ repository = "https://github.com/jhey29/brainfuck"
+ license = "MIT"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+
+[workspace]
+members = ["wasm-crate","libbrainpipe","stdio"]
+
+[lib]
+crate_type = ["lib"]
+path = "libbrainpipe/src/lib.rs"
+
+[[bin]]
+name = "stdio"
+path = "stdio/src/main.rs"
