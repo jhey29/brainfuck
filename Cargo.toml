@@ -1,20 +1,10 @@
- [package]
- name = "brainpipe"
- version = "0.1.0"
- edition = "2021"
- repository = "https://github.com/jhey29/brainfuck"
+ [workspace]
+ repository = "https://github.com/jhey29/brainpipe"
  license = "MIT"
+ members = ["wasm-crate","stdio","libbrainpipe"] # path dependencies like libbrainpipe are automatically members, maybe? 
+
+
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-
-[workspace]
-members = ["wasm-crate","libbrainpipe","stdio"]
-
-[lib]
-crate_type = ["lib"]
-path = "libbrainpipe/src/lib.rs"
-
-[[bin]]
-name = "stdio"
-path = "stdio/src/main.rs"
+[workspace.dependencies]
+getopts = "0.2"

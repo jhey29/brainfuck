@@ -2,3 +2,4 @@
 /bf
 /.vscode
 **/pkg
+wasm-crate/js

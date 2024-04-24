@@ -1,28 +1,37 @@
 use std::iter::Peekable;
 use std::time::Duration;
+
+use crate::MyOptions;
+
+
 #[derive(Debug)]
 pub enum BfAstNode {
     CodeBlob(SelectVec<char>),
     Conditional(SelectVec<BfAstNode>),
 }
-pub struct BrainfuckIterator<'a> {
+pub struct BrainfuckIterator<'a> { // owns 'a so it doesn't matter.
     program: SelectVec<BfAstNode>,
     memory: SelectVec<u8>,
     on: Box<dyn Iterator<Item = u8> + 'a>,
+    debug: fn(String),
+    options: MyOptions,
 }
 impl<'a> BrainfuckIterator<'a> {
-    pub fn new(program: SelectVec<BfAstNode>,on: Box<dyn Iterator<Item = u8> + 'a>) -> Self {
-        BrainfuckIterator {
-            program,
-            memory: SelectVec::new(vec![0,0,0,0]),
-            on,
-        }
+    pub fn new(program: SelectVec<BfAstNode>,on: Box<dyn Iterator<Item = u8> + 'a>, debug: fn(String), options: MyOptions) -> Self {
+    BrainfuckIterator {
+        program,
+        memory: SelectVec::new(vec![0,0,0,0]),
+        on,
+        debug,
+        options
     }
 }
+}
+
 impl<'a> Iterator for BrainfuckIterator<'a> {
     type Item = u8;
     fn next(&mut self) -> Option<Self::Item> {
-        match run_bf_ast(&mut self.program,&mut self.memory,&mut self.on) {
+        match run_bf_ast(&mut self.program,&mut self.memory,&mut self.on,self.debug, self.options) {
             BfResult::Output(x) => Some(x),
             BfResult::OutOfInput | BfResult::Terminated => None,
         }
@@ -39,6 +48,7 @@ impl<T> SelectVec<T> {
     fn new(vec: Vec<T>) -> Self {
         SelectVec { vec, selected: 0 }
     }
+    /// Add one to self.selected
     fn select_next(&mut self) {
         self.selected += 1
     } 
@@ -66,7 +76,7 @@ trait IsReset {
 impl<T: IsReset> IsReset for SelectVec<T> {
     fn is_reset(&self) -> bool {
         self.selected == 0 && self.vec.iter().all(
-           |item| item.is_reset()
+            |item| item.is_reset()
         )
     }
 }
@@ -89,7 +99,7 @@ pub enum BfResult {
     Terminated,
     OutOfInput,
 }
-pub fn run_bf_ast(program: &mut SelectVec<BfAstNode>, memory:&mut SelectVec<u8>, input:&mut impl Iterator<Item = u8>) -> BfResult {
+pub fn run_bf_ast(program: &mut SelectVec<BfAstNode>, memory:&mut SelectVec<u8>, input:&mut impl Iterator<Item = u8>, debug: fn(String), options: MyOptions) -> BfResult {
     loop {
         let Some(node) = program.get_mut_selected() else {return BfResult::Terminated};
         match node {
@@ -97,7 +107,7 @@ pub fn run_bf_ast(program: &mut SelectVec<BfAstNode>, memory:&mut SelectVec<u8>,
                 loop {
                     let char = chars.get_mut_selected().copied();
                     chars.select_next(); //unlike the above loop, if something quits out of this loop
-                                         //it's always correct to have the next command selected
+                    //it's always correct to have the next command selected
                     match char {
                         Some(c) => match c {
                             '+' => *memory.mut_selected() = memory.mut_selected().wrapping_add(1),
@@ -105,19 +115,22 @@ pub fn run_bf_ast(program: &mut SelectVec<BfAstNode>, memory:&mut SelectVec<u8>,
                             '<' => memory.selected = match (memory.selected).checked_sub(1) {
                                 Some(v) => v, 
                                 None => {
-                                    println!("{:?}",&memory);
-                                    panic!("< should not underflow the memory index in code block {:?}",chars)
+                                    debug("< should not underflow the memory index".into());
+                                    panic!("< should not underflow the memory index");
                                 },
                             },
                             '>' => memory.selected += 1,
                             '.' => return BfResult::Output(*memory.mut_selected()),
-                            ',' => match input.next() { 
+                            ',' => match input.next().or(options.eof) { 
                                 Some(byte) => *memory.mut_selected() = byte,
-                                None => return BfResult::OutOfInput, // if you have returned None, no one will ever ask you again because everyone is like you
+                                None => {program.selected -= 1; // this is currently useless because the Iterators behave as Fused and never return Some() again after a None  
+                                    return BfResult::OutOfInput}, // but should 
                             },
                             '#' => {
-                                println!("message: {}",chars.vec[chars.selected..].iter().take_while(|ch| !".,+-<>".contains(**ch) ).map(|c|c.to_string()).reduce(|a,b| a+ &b ).unwrap_or("".into()));
-                                println!("{:?}",&memory);
+                                debug(format!("message: {}\n{:?}",
+                                chars.vec[chars.selected..].iter().take_while(|ch| !".,+-<>".contains(**ch) ).map(|c|c.to_string()).reduce(|a,b| a+ &b ).unwrap_or("".into()),
+                                &memory));
+                                #[cfg(not(target_arch = "wasm32"))]
                                 std::thread::sleep(Duration::new(0,1_000_000_000/60));
                             },
                             _ => (),
@@ -129,7 +142,7 @@ pub fn run_bf_ast(program: &mut SelectVec<BfAstNode>, memory:&mut SelectVec<u8>,
             BfAstNode::Conditional(ref mut ast) => {
                 loop { 
                     if *memory.mut_selected() == 0 && ast.is_reset() { break; } //is_reset => Don't do this check when restarting the simulation, only when looping.
-                    match run_bf_ast(ast,memory,input) {
+                    match run_bf_ast(ast,memory,input,debug,options) {
                         BfResult::Output(output) => return BfResult::Output(output), //if the contents of a loop have generated output, we need to remember our place.
                         BfResult::OutOfInput => return BfResult::OutOfInput,
                         BfResult::Terminated => ast.reset(), // if the contents of a loop have terminated, they can run again
