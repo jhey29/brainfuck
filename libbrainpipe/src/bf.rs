@@ -161,7 +161,7 @@ where I: Iterator<Item = char> {
             '[' => {program.next();  opvec_ast.push(BfAstNode::Conditional(bf_to_ast(program)))},
             ']' => {program.next();  break},
             a if "+-.,<>#".contains(*a) => opvec_ast.push(BfAstNode::CodeBlob(new_code_blob(program))),
-            bpipe_char if "|(){}".contains(*bpipe_char) => break, 
+            bpipe_char if "|".contains(*bpipe_char) => break, 
             _ => {program.next();},
         }
     }
@@ -174,7 +174,7 @@ where I: Iterator<Item = char> {
         match program.peek() {
             Some(c) => match c {
                 '[' | ']' => break,
-                bpipe_char if "|(){}".contains(*bpipe_char) => break,
+                bpipe_char if "|".contains(*bpipe_char) => break,
                 '#' => opvec_ch.append(&mut program.take_while(|ch| !ch.is_ascii_whitespace()).collect::<Vec<_>>() ),
                 a if "+-.,<>".contains(*a) => opvec_ch.push(program.next().unwrap()),
                 _ => {program.next();},

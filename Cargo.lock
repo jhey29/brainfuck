@@ -160,6 +160,7 @@ name = "wasm-crate"
 version = "0.1.0"
 dependencies = [
  "console_error_panic_hook",
+ "getopts",
  "libbrainpipe",
  "wasm-bindgen",
 ]

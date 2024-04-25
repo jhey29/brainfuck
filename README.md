@@ -15,8 +15,15 @@ or has requested input itself. If any of these brainfuck programs ends, the enti
 ## Building the Webassembly target
 Doing this requires you to [have wasm-pack installed](https://rustwasm.github.io/wasm-pack/installer/). You can then run 
 ```
-./ln-into-webapp.sh /path/to/web-project/pkg/
-cd wasm-crate
-wasm-pack build --target web
+./build-wasm.sh /path/to/web-project/
 ``` 
 (on linux) to have the artifact written into your web project directly, and then interact with the WebAssembly according to the `--target web` [way of doing things.](https://developer.mozilla.org/en-US/docs/WebAssembly/Rust_to_wasm#compiling_our_code_to_webassembly)
+This creates two symbolic links, one called "pkg" which is used as the target to write the .wasm and .js files to, 
+and "js" which goes to the root of the web project and can be used to get function-exporting files accessible by wasm-pack and/or wasm-bingen with an attribute such as this:
+```rust
+#[wasm_bindgen(module = "/js/wasm_imports.js")]
+extern {
+    //...
+}
+```
+

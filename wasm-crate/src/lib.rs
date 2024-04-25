@@ -1,5 +1,5 @@
 
-use libbrainpipe::{self, MyOptions};
+use libbrainpipe::{self, parse_options, MyOptions};
 use wasm_bindgen;
 
 use wasm_bindgen::prelude::*;
@@ -16,17 +16,18 @@ extern {
 
 
 #[wasm_bindgen]
-pub fn run(program: &str, input: &str) {
+pub fn run(program: &str, input: &str, options: &str) {
     console_error_panic_hook::set_once();
     let input = input.to_owned();
+    let Ok(options) = parse_options(&[options.to_owned()],"cargo run --" , output) else {return};
     let iter = libbrainpipe::map_brainpipe(
         &mut program.chars().peekable(),
         Box::new(input.chars().map(|c| u32::from(c) as u8 )),
         output as fn(String),
-        MyOptions { eof: None} //TODO
+        MyOptions::from(options)//TODO
     );
     
-    iter.for_each(|byte| output(String::from(byte as char)));  
+    iter.for_each(|byte| output(String::from(byte as char)));
 }
 
 struct MyInputIterator;

@@ -1,6 +1,7 @@
  [workspace]
  repository = "https://github.com/jhey29/brainpipe"
  license = "MIT"
+ resolver = "2"
  members = ["wasm-crate","stdio","libbrainpipe"] # path dependencies like libbrainpipe are automatically members, maybe? 
 
 

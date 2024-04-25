@@ -9,6 +9,18 @@ pub struct MyOptions {
     /// The -z flag, which specifies the Number to send if there is no input, instead of terminating the program.
     pub eof: Option<u8>, 
 }
+/// Cross-Platform getopt boilerplate 
+pub fn parse_options(args: &[String], progname: &str, output: fn(String)) -> Result<getopts::Matches,()> {
+    let mut opts = getopts::Options::new();
+    opts.optopt("z", "eof", "Decimal number of the byte to return from the comma command if there is no input to the relevant subunit.", "Number")
+        .optflag("h", "help", "Display the help about the parameters.");
+    let matches = opts.parse(args).map_err(|fail| output(format!("{:?}",fail)))?;
+    if matches.opt_present("h") {
+        let brief = format!("Usage: {} FILE [options]", progname);
+        return Err(output(opts.usage(&brief)));
+    }
+    Ok(matches)
+}
 impl From<getopts::Matches> for MyOptions {
     fn from(value: getopts::Matches) -> Self {
         MyOptions {

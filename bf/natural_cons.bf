@@ -1,3 +1,4 @@
+This is a solution to the Natural Construction Problem on Code Golf Stack Exchange
 0 is charcode 48
 - MARK Beginning
 [>,----- -----] read input minus 10 until enter
